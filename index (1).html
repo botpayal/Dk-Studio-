@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+</head>
+
+<body>
+  
+</body>
+
+</html><html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dk Social Boost</title>
+    <!-- Firebase SDK Scripts (App, Auth & Firestore Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background-color: #f3ebff;
+            color: #333;
+            padding-bottom: 80px;
+        }
+        /* Auth Screen Overlay */
+        .auth-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .auth-box {
+            background: #fff;
+            padding: 25px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 350px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .auth-box h2 {
+            margin-bottom: 15px;
+            color: #2b1b54;
+        }
+        .auth-box input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .auth-box button {
+            background: #6c5ce7;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            font-size: 15px;
+        }
+        .auth-box button:hover {
+            background: #5b4cc4;
+        }
+        .switch-text {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+        }
+        .switch-text span {
+            color: #6c5ce7;
+            font-weight: bold;
+        }
+        .forgot-link {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #ff4757;
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .logout-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .logo {
+            background-color: #000;
+            color: #ffcc00;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .wallet {
+            background-color: #ffeb3b;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        .container {
+            padding: 15px;
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 10px 0 15px 0;
+            color: #2b1b54;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+   .back-btn {
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: #2b1b54;
+        }
+        .service-card {
+            background-color: #fff;
+            padding: 18px 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            font-weight: bold;
+            font-size: 17px;
+            cursor: pointer;
+            color: #2b1b54;
+        }
+        .service-card span {
+            font-size: 20px;
+            color: #6c5ce7;
+        }
+        .package-card {
+            background-color: #fff;
+            padding: 15px 18px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            cursor: pointer;
+            border: 1px solid #eee;
+            transition: all 0.2s ease;
+        }
+        .package-card:hover {
+            border-color: #6c5ce7;
+            transform: translateY(-2px);
+        }
+        .pkg-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .pkg-name {
+            font-size: 15px;
+            font-weight: bold;
+            color: #2b1b54;
+        }
+        .pkg-price {
+            font-size: 16px;
+            font-weight: bold;
+            color: #00b894;
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #fff;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 12px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 99;
+        }
+        .nav-item {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            cursor: pointer;
+        }
+        .create-order-btn {
+            background: linear-gradient(135deg, #8a2be2, #6c5ce7);
+            color: white;
+            padding: 14px 25px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+            margin-top: -25px;
+            cursor: pointer;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 350px;
+            text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-content h3 { margin-bottom: 10px; color: #2b1b54; }
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .modal-content button {
+            background: #6c5ce7;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .close-btn {
+            background: #ff4757 !important;
+            margin-top: 5px !important;
+        }
+        .scanner-box {
+            background: #f9f9f9;
+            border: 2px dashed #6c5ce7;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: none;
+        }
+        .scanner-box img {
+            width: 160px;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-top: 5px;
+        }
+        .order-item-card {
+            background: #fdfdfd;
+            border: 1px solid #e0e0e0;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            text-align: left;
+        }
+</style>
+</head>
+<body>
+    <!-- Login / Signup Modal Overlay -->
+    <div id="authModal" class="auth-container">
+        <div class="auth-box">
+            <h2 id="authTitle">Login to Account</h2>
+            <input type="email" id="authEmail" placeholder="Enter Email Address">
+            <input type="text" id="authUsername" placeholder="Enter Username (Register only)" style="display: none;">
+            <input type="password" id="authPassword" placeholder="Enter Password">
+            <button id="authBtn" onclick="handleAuth()">Login</button>
+            
+            <div>
+                <span class="forgot-link" id="forgotLink" onclick="openForgotModal()">Forgot Password?</span>
+            </div>
+
+            <div class="switch-text" id="switchText" onclick="toggleAuthMode()">
+                Don't have an account? <span>Register here</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal Box -->
+    <div id="forgotModal" class="modal" style="z-index: 10005; display: none;">
+        <div class="modal-content">
+            <h3>Reset Password</h3>
+            <p style="font-size: 13px; color: #666; margin-bottom: 10px;">Enter your email ID here and a link will be sent to you..</p>
+            <input type="email" id="forgotEmail" placeholder="Enter Registered Email">
+            <button onclick="sendPasswordResetEmail()">Send Reset Link</button>
+            <button class="close-btn" onclick="closeForgotModal()">Cancel</button>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="logo">Dk Social Boost ⭐</div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="wallet" onclick="openWalletModal()">₹ <span id="displayBalance">0.00</span> ➕</div>
+            <button class="logout-btn" onclick="logoutUser()">Logout</button>
+        </div>
+    </div>
+
+    <div class="container" id="mainContainer">
+        <div class="section-title" style="justify-content: center;">Our Services</div>
+        <div class="service-card" onclick="showSubCategory('VerificationBadges')">🔵 Verification Badges <span>›</span></div>
+        <div class="service-card" onclick="showSubCategory('MobileRecharge')">📱 Mobile Recharge (5G Data) <span>›</span></div>
+        <div class="service-card" onclick="showSubCategory('Instagram')">📷 INSTAGRAM <span>›</span></div>
+        <div class="service-card" onclick="showSubCategory('Facebook')">📘 FACEBOOK <span>›</span></div>
+        <div class="service-card" onclick="showSubCategory('Telegram')">✈️ Telegram <span>›</span></div>
+        <div class="service-card" onclick="showSubCategory('YouTube')">▶️ YouTube <span>›</span></div>
+        <div class="service-card" onclick="showSubCategory('FreeFire')">🎮 Free Fire Uid Auto Like <span>›</span></div>
+        <div class="service-card" onclick="showSubCategory('FreeFireGuildGlory')">🛡️ Free Fire Guild Glory Bot <span>›</span></div>
+        <div class="service-card" onclick="showSubCategory('FreeFireDiamond')">💎 ✨ Free Fire Diamond <span>›</span></div>
+        <div class="service-card" onclick="showSubCategory('FreeFireMembership')">💌 Free Fire Membership <span>›</span></div>
+        <div class="service-card" onclick="showSubCategory('FreeFireRedeemCode')">♠️ Free Fire Maxx Redeem Code Card <span>›</span></div>
+        <div class="service-card" onclick="showSubCategory('BgmiRedeemCode')">♦️ Bgmi Redeem Code Card <span>›</span></div>
+    </div>
+
+    <!-- Bottom Navigation with Exactly 5 Options -->
+    <div class="bottom-nav">
+        <div class="nav-item" onclick="openMyOrdersModal()">📦 My Orders</div>
+        <div class="nav-item" onclick="openWalletModal()">💰 Wallet</div>
+        <div class="create-order-btn" onclick="openOrderModal('General Order', 0, 1, 0, 'Enter link/UID/Email')">+ Create Order</div>
+        <div class="nav-item" onclick="openPrivacyModal()">🔒 Privacy Policy</div>
+        <div class="nav-item" onclick="openSettingsModal()">⚙️ Setting</div>
+    </div>
+
+    <!-- Wallet Modal -->
+    <div id="walletModal" class="modal">
+        <div class="modal-content">
+            <h3>Add Money to Wallet</h3>
+            
+            <div id="walletStep1">
+                <input type="number" id="addAmount" placeholder="Enter Amount to Add (₹)">
+                <button onclick="generateDynamicQR()">Next: Generate QR</button>
+                <button class="close-btn" onclick="closeModals()">Cancel</button>
+            </div>
+
+            <div id="walletStep2" style="display: none;">
+                <div class="scanner-box" style="display: block;">
+                    <p style="font-size: 13px; color: #555; margin-bottom: 3px;">Scan & Pay <span id="qrAmountText" style="color: #00b894; font-weight: bold;"></span>:</p>
+                    <img id="dynamicQRImg" src="" alt="Dynamic UPI QR Code">
+                    <div style="font-size: 14px; font-weight: bold; color: #2b1b54; margin-top: 5px;">UPI: palb@fam</div>
+                    <div style="font-size: 11px; color: #666;">(Dabasis Pal)</div>
+                </div>
+                <input type="text" id="utrId" placeholder="Enter UPI Transaction ID / UTR">
+                <input type="file" id="paymentProofFile" accept="image/*" style="margin: 8px 0; font-size: 13px; width: 100%;">
+                <button onclick="submitPaymentProof()">Submit Payment Request</button>
+                <button class="close-btn" onclick="resetWalletModal()">Back / Change Amount</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Modal -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <h3 id="orderTitle">Create Order</h3>
+            <input type="text" id="orderService" readonly>
+            <input type="hidden" id="orderServiceId">
+            <input type="text" id="targetLink" placeholder="Enter link">
+            <input type="number" id="orderQty" placeholder="Enter Quantity" oninput="calculatePrice()">
+            <div id="calculatedPriceDisplay" style="font-size: 16px; font-weight: bold; color: #00b894; margin: 10px 0;"></div>
+            <button onclick="submitOrder()">Place Order & WhatsApp Redirect</button>
+            <button class="close-btn" onclick="closeModals()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- My Orders Modal -->
+    <div id="myOrdersModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h3>My Orders</h3>
+            <div id="myOrdersList" style="text-align: left; max-height: 300px; overflow-y: auto; margin-bottom: 10px;"></div>
+            <button class="close-btn" onclick="closeModals()">Close</button>
+        </div>
+    </div>
+
+    <!-- Privacy Policy Modal -->
+    <div id="privacyModal" class="modal">
+        <div class="modal-content" style="text-align: left; max-width: 400px;">
+            <h3>Privacy Policy Notice - Dk Social Boost</h3>
+            <p style="font-size: 11px; color: #666; margin-bottom: 10px;">Last Updated: August 2026</p>
+            <div style="font-size: 12px; color: #444; max-height: 250px; overflow-y: auto; line-height: 1.5; margin-bottom: 10px;">
+                <p>Welcome to Dk Social Boost ("we," "our," or "us"). We respect your privacy and are committed to protecting your personal information.</p>
+                <br>
+                <b>1. Information We Collect</b><br>
+                * Account Information: Email address and username to manage your account and secure your wallet balance.<br>
+                * Order Details: Links, usernames, UIDs, or email addresses provided to deliver services.<br>
+                * Payment Information: UPI transaction IDs (UTR) or payment references for wallet top-ups.<br>
+                <br>
+                <b>2. How We Use Your Information</b><br>
+                * To create/manage user accounts and authenticate logins.<br>
+                * To process and deliver digital and social services.<br>
+                * To verify wallet top-ups and communicate updates.<br>
+                <br>
+                <b>3. Data Security</b><br>
+                We implement standard security measures including Firebase authentication and encrypted databases.<br>
+                <br>
+                <b>4. Sharing of Information</b><br>
+                We do not sell, trade, or rent personal identification info to third parties.<br>
+                <br>
+                <b>5. Rules & Refunds</b><br>
+                * Uncredited wallet payments will be refunded. Once added to the wallet, funds are non-returnable.<br>
+                * Unfulfilled services get refunded to the app wallet once complete.<br>
+                * Services are used at your own risk.
+            </div>
+            <button class="close-btn" onclick="closeModals()">Close</button>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content" style="max-width: 380px;">
+            <h3>App Settings</h3>
+            <div style="text-align: left; margin: 15px 0; font-size: 14px;">
+                <p style="color: #333; font-weight: bold; margin-bottom: 5px;">Account Management</p>
+                <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Manage your account data and privacy settings securely.</p>
+                
+                <div style="background: #fff5f5; border: 1px solid #ff4757; padding: 12px; border-radius: 8px;">
+                    <b style="color: #ff4757; font-size: 13px;">Delete Account & Data</b>
+                    <p style="font-size: 11px; color: #555; margin: 5px 0 10px 0;">This will permanently delete your account data from our servers, clear your wallet balance, and remove your records.</p>
+                    <button onclick="confirmUserDataDeletion()" style="background: #ff4757; margin-top: 0; padding: 8px; font-size: 13px;">Delete My Data</button>
+                </div>
+            </div>
+            <button class="close-btn" onclick="closeModals()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // --- FIREBASE CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyD6y5tKzFC48TJ6YVygc7ndwjNYqsHKGBk",
+            authDomain: "dk-social-boost-50890.firebaseapp.com",
+            projectId: "dk-social-boost-50890",
+            storageBucket: "dk-social-boost-50890.firebasestorage.app",
+            messagingSenderId: "897383261797",
+            appId: "1:897383261797:web:a85ad58aa1520cabea888c"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        const ownerWhatsAppNumber = "919800510991";
+        const ownerUpiId = "palb@fam";
+        const ownerName = "Dabasis Pal";
+        let currentBalance = 0.00;
+        let selectedPackageUnitPrice = 0;
+        let isRegisterMode = false;
+        let loggedInUsername = "";
+        let loggedInEmail = "";
+
+        window.onload = function() {
+            let activeUser = localStorage.getItem('dksocialboost_logged_in_user');
+            if (activeUser) {
+                showDashboard(activeUser);
+            } else {
+                document.getElementById('authModal').style.display = 'flex';
+            }
+        };
+function toggleAuthMode() {
+            isRegisterMode = !isRegisterMode;
+            let usernameField = document.getElementById('authUsername');
+            let forgotLink = document.getElementById('forgotLink');
+            
+            if (isRegisterMode) {
+                document.getElementById('authTitle').innerText = "Create New Account";
+                document.getElementById('authBtn').innerText = "Register";
+                document.getElementById('switchText').innerHTML = "Already have an account? <span>Login here</span>";
+                usernameField.style.display = 'block';
+                forgotLink.style.display = 'none';
+            } else {
+                document.getElementById('authTitle').innerText = "Login to Account";
+                document.getElementById('authBtn').innerText = "Login";
+                document.getElementById('switchText').innerHTML = "Don't have an account? <span>Register here</span>";
+                usernameField.style.display = 'none';
+                forgotLink.style.display = 'inline-block';
+            }
+        }
+
+        function openForgotModal() {
+            document.getElementById('forgotModal').style.display = 'flex';
+            document.getElementById('forgotEmail').value = '';
+        }
+        function closeForgotModal() {
+            document.getElementById('forgotModal').style.display = 'none';
+        }
+
+        async function sendPasswordResetEmail() {
+            let email = document.getElementById('forgotEmail').value.trim();
+            if (!email) {
+                alert('Enter your email ID here.!');
+                return;
+            }
+            try {
+                await auth.sendPasswordResetEmail(email);
+                alert('Password reset link has been sent to your email! Check your inbox/spam folder.');
+                closeForgotModal();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        async function handleAuth() {
+            let email = document.getElementById('authEmail').value.trim();
+            let password = document.getElementById('authPassword').value.trim();
+
+            if (!email || !password) {
+                alert('Please Enter your email & password. !');
+                return;
+            }
+            try {
+                if (isRegisterMode) {
+                    let username = document.getElementById('authUsername').value.trim();
+                    if (!username) {
+                        alert('Kripya Username bhi enter karein!');
+                        return;
+                    }
+                    let userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    let uid = userCredential.user.uid;
+
+                    await db.collection("users").doc(uid).set({
+                        username: username,
+                        email: email,
+                        balance: 0.00
+                    });
+
+                    alert('Account is ready!');
+                    toggleAuthMode();
+                } else {
+                    let userCredential = await auth.signInWithEmailAndPassword(email, password);
+                    let uid = userCredential.user.uid;
+
+                    localStorage.setItem('dksocialboost_logged_in_user', uid);
+                    showDashboard(uid);
+                }
+            } catch (err) {
+                alert('Authentication Failed: ' + err.message);
+            }
+        }
+
+        async function showDashboard(uid) {
+            document.getElementById('authModal').style.display = 'none';
+            
+            try {
+                let userRef = db.collection("users").doc(uid);
+                let doc = await userRef.get();
+                if (doc.exists) {
+                    let data = doc.data();
+                    currentBalance = data.balance || 0.00;
+                    loggedInUsername = data.username || "User";
+                    loggedInEmail = data.email || (auth.currentUser ? auth.currentUser.email : "");
+                    updateBalanceDisplay();
+                }
+            } catch (err) {
+                console.log("Error loading balance");
+            }
+        }
+
+        function logoutUser() {
+            localStorage.removeItem('dksocialboost_logged_in_user');
+            location.reload();
+        }
+
+        function updateBalanceDisplay() {
+            document.getElementById('displayBalance').innerText = currentBalance.toFixed(2);
+        }
+
+        // --- NEW PACKAGES DATA ARRAYS ---
+        const verificationBadgesPackages = [
+            { name: "Facebook meta verified badge 🔵 [100% Lifetime Guaranteed] [Limited Time Offer]", price: "₹1199.00", baseQty: 1, serviceId: 91001 },
+            { name: "WhatsApp meta verified badge 🔵 [100% Lifetime Guaranteed] [Limited Time Offer]", price: "₹1199.00", baseQty: 1, serviceId: 91002 },
+            { name: "Telegram meta verified badge 🔵 [100% Lifetime Guaranteed] [Limited Time Offer]", price: "₹1199.00", baseQty: 1, serviceId: 91003 },
+            { name: "Twitter Blue Tick Badge 🔵 [100% Life Guarantee] [SPECIAL OFFER]", price: "₹799.00", baseQty: 1, serviceId: 91004 }
+        ];
+
+        const mobileRechargePackages = [
+            { name: "Airtel Recharge 🛑 1 Month 5G 2GB data per day", price: "₹299.00", baseQty: 1, serviceId: 92001 },
+            { name: "Jio Recharge 🛑 2 Month 5G 2GB data per day", price: "₹399.00", baseQty: 1, serviceId: 92002 },
+            { name: "Voda / Vi Recharge 🛑 1 Month 5G 2GB data per day", price: "₹299.00", baseQty: 1, serviceId: 92003 }
+        ];
+
+// --- EXISTING PACKAGES DATA ARRAYS ---
+        const instagramFollowersPackages = [
+            { name: "100 Instagram Followers | SuperFast- Lifetime", price: "₹30.50", baseQty: 100, serviceId: 31934 },
+            { name: "500 Instagram Followers | SuperFast-Lifetime", price: "₹90.50", baseQty: 500, serviceId: 31934 },
+            { name: "1k Instagram Followers | SuperFast- Lifetime", price: "₹160.00", baseQty: 1000, serviceId: 31934 },
+            { name: "2k Instagram Followers | SuperFast- Lifetime", price: "₹310.50", baseQty: 2000, serviceId: 31934 },
+            { name: "5k Instagram Followers | SuperFast- Lifetime", price: "₹640.50", baseQty: 5000, serviceId: 31934 },
+            { name: "10k Instagram Followers | SuperFast- Lifetime", price: "₹1,237.50", baseQty: 10000, serviceId: 31934 },
+            { name: "20k Instagram Followers | SuperFast- Lifetime", price: "₹2,350.00", baseQty: 20000, serviceId: 31934 },
+            { name: "50k Instagram Followers | SuperFast- Lifetime", price: "₹5,600.00", baseQty: 50000, serviceId: 31934 },
+            { name: "100k Instagram Followers | SuperFast- Lifetime", price: "₹10,725.00", baseQty: 100000, serviceId: 31934 },
+            { name: "500k Instagram Followers | SuperFast- Lifetime", price: "₹51,350.00", baseQty: 500000, serviceId: 31934 },
+            { name: "1 Million Instagram Followers | SuperFast- Lifetime", price: "₹98,950.00", baseQty: 1000000, serviceId: 31934 }
+        ];
+
+        const instagramViewsPackages = [
+            { name: "1k Reel Views- Superfast", price: "₹15.00", baseQty: 1000, serviceId: 31905 },
+            { name: "2k Reel Views- Superfast", price: "₹25.90", baseQty: 2000, serviceId: 31905 },
+            { name: "5k Reel Views- Superfast", price: "₹30.70", baseQty: 5000, serviceId: 31905 },
+            { name: "10k Reel Views- Superfast", price: "₹40.10", baseQty: 10000, serviceId: 31905 },
+            { name: "20k Reel Views- Superfast", price: "₹60.00", baseQty: 20000, serviceId: 31905 },
+            { name: "50k Reel Views- Superfast", price: "₹90.00", baseQty: 50000, serviceId: 31905 },
+            { name: "100k Reel Views- Superfast", price: "₹130.00", baseQty: 100000, serviceId: 31905 },
+            { name: "500k Reel Views- Superfast", price: "₹499.00", baseQty: 500000, serviceId: 31905 },
+            { name: "1 Million Reel Views- Superfast", price: "₹849.00", baseQty: 1000000, serviceId: 31905 }
+        ];
+
+        const instagramLikesPackages = [
+            { name: "100 Normal Likes Lifetime", price: "₹10.90", baseQty: 100, serviceId: 31786 },
+            { name: "500 Normal Likes Lifetime", price: "₹20.50", baseQty: 500, serviceId: 31786 },
+            { name: "1k Normal Likes Lifetime", price: "₹35.00", baseQty: 1000, serviceId: 31786 },
+            { name: "2k Normal Likes Lifetime", price: "₹65.10", baseQty: 2000, serviceId: 31786 },
+            { name: "5k Normal Likes Lifetime", price: "₹156.30", baseQty: 5000, serviceId: 31786 },
+            { name: "10k Normal Likes Lifetime", price: "₹283.90", baseQty: 10000, serviceId: 31786 },
+            { name: "20k Normal Likes Lifetime", price: "₹542.00", baseQty: 20000, serviceId: 31786 },
+            { name: "50k Normal Likes Lifetime", price: "₹1,376.00", baseQty: 50000, serviceId: 31786 },
+            { name: "100k Normal Likes Lifetime", price: "₹2,665.00", baseQty: 100000, serviceId: 31786 },
+            { name: "500k Normal Likes Lifetime", price: "₹1,210.00", baseQty: 500000, serviceId: 31786 },
+            { name: "1 Million Normal Likes Lifetime", price: "₹23,910.00", baseQty: 1000000, serviceId: 31786 }
+        ];
+
+        const instagramStoryViewsPackages = [
+            { name: "100 INSTAGRAM STORY VIEWS", price: "₹15.00", baseQty: 100, serviceId: 29246 },
+            { name: "500 INSTAGRAM STORY VIEWS", price: "₹25.00", baseQty: 500, serviceId: 29246 },
+            { name: "1k INSTAGRAM STORY VIEWS", price: "₹40.00", baseQty: 1000, serviceId: 29246 },
+            { name: "2k INSTAGRAM STORY VIEWS", price: "₹67.00", baseQty: 2000, serviceId: 29246 },
+            { name: "5k INSTAGRAM STORY VIEWS", price: "₹165.00", baseQty: 5000, serviceId: 29246 },
+            { name: "10K INSTAGRAM STORY VIEWS", price: "₹293.00", baseQty: 10000, serviceId: 29246 }
+        ];
+
+        const instagramCommentsPackages = [
+            { name: "100 INSTAGRAM Comments", price: "₹20.00", baseQty: 100, serviceId: 31225 },
+            { name: "500 INSTAGRAM Comments", price: "₹80.00", baseQty: 500, serviceId: 31225 },
+            { name: "1k INSTAGRAM Comments", price: "₹140.00", baseQty: 1000, serviceId: 31225 },
+            { name: "2k INSTAGRAM Comments", price: "₹199.00", baseQty: 2000, serviceId: 31225 },
+            { name: "5k INSTAGRAM Comments", price: "₹499.00", baseQty: 5000, serviceId: 31225 },
+            { name: "10K INSTAGRAM Comments", price: "₹1020.00", baseQty: 10000, serviceId: 31225 }
+        ];
+
+        const instagramSharesPackages = [
+            { name: "1k INSTAGRAM Shares", price: "₹20.76", baseQty: 1000, serviceId: 26633 },
+            { name: "2k INSTAGRAM Shares", price: "₹30.34", baseQty: 2000, serviceId: 26633 },
+            { name: "5k INSTAGRAM Shares", price: "₹65.27", baseQty: 5000, serviceId: 26633 },
+            { name: "10k INSTAGRAM Shares", price: "₹90.02", baseQty: 10000, serviceId: 26633 },
+            { name: "20k INSTAGRAM Shares", price: "₹150.68", baseQty: 20000, serviceId: 26633 },
+            { name: "50K INSTAGRAM Shares", price: "₹270.44", baseQty: 50000, serviceId: 26633 },
+            { name: "100k INSTAGRAM Shares", price: "₹465.60", baseQty: 100000, serviceId: 26633 },
+            { name: "500k INSTAGRAM Shares", price: "₹821.60", baseQty: 500000, serviceId: 26633 },
+            { name: "1 Million INSTAGRAM Shares", price: "₹1,450.40", baseQty: 1000000, serviceId: 26633 }
+        ];
+
+        const instagramPostViewsPackages = [
+            { name: "1k Instagram Post / Photo Views", price: "₹10.00", baseQty: 1000, serviceId: 25103 },
+            { name: "2k Instagram Post / Photo Views", price: "₹15.70", baseQty: 2000, serviceId: 25103 },
+            { name: "5k Instagram Post / Photo Views", price: "₹30.10", baseQty: 5000, serviceId: 25103 },
+            { name: "10k Instagram Post / Photo Views", price: "₹50.30", baseQty: 10000, serviceId: 25103 },
+            { name: "20k Instagram Post / Photo Views", price: "₹90.00", baseQty: 20000, serviceId: 25103 },
+            { name: "50k Instagram Post / Photo Views", price: "₹180.00", baseQty: 50000, serviceId: 25103 },
+            { name: "100k Instagram Post / Photo Views", price: "₹340.00", baseQty: 100000, serviceId: 25103 },
+            { name: "500k Instagram Post / Photo Views", price: "₹1,330.00", baseQty: 500000, serviceId: 25103 },
+            { name: "1 Million Instagram Post / Photo Views", price: "₹2,547.00", baseQty: 1000000, serviceId: 25103 }
+        ];
+
+        const instagramPollVotesPackages = [
+            { name: "100 Story Poll Vote Vote 1", price: "₹22.00", baseQty: 100, serviceId: 0 },
+            { name: "500 Story Poll Vote Vote 1", price: "₹70.00", baseQty: 500, serviceId: 0 },
+            { name: "1k Story Poll Vote Vote 1", price: "₹130.00", baseQty: 1000, serviceId: 0 },
+            { name: "2k Story Poll Vote Vote 1", price: "₹248.00", baseQty: 2000, serviceId: 0 },
+            { name: "5k Story Poll Vote Vote 1", price: "₹584.00", baseQty: 5000, serviceId: 0 },
+            { name: "10k Story Poll Vote Vote 1", price: "₹1,192.00", baseQty: 10000, serviceId: 0 },
+            { name: "20k Story Poll Vote Vote 1", price: "₹2,260.00", baseQty: 20000, serviceId: 0 },
+            { name: "50k Story Poll Vote Vote 1", price: "₹5,380.00", baseQty: 50000, serviceId: 0 }
+        ];
+
+        const facebookIndianMixFollowersPackages = [
+            { name: "100 Facebook Indian Mix Followers - Lifetime [Profile/Page]", price: "₹15.00", baseQty: 100, serviceId: 32152 },
+            { name: "500 Facebook Indian Mix Followers - Lifetime [Profile/Page]", price: "₹45.00", baseQty: 500, serviceId: 32152 },
+            { name: "1k Facebook Indian Mix Followers - Lifetime [Profile/Page]", price: "₹89.00", baseQty: 1000, serviceId: 32152 },
+            { name: "2k Facebook Indian Mix Followers - Lifetime [Profile/Page]", price: "₹173.00", baseQty: 2000, serviceId: 32152 },
+            { name: "5k Facebook Indian Mix Followers - Lifetime [Profile/Page]", price: "₹370.00", baseQty: 5000, serviceId: 32152 },
+            { name: "10k Facebook Indian Mix Followers - Lifetime [Profile/Page]", price: "₹737.00", baseQty: 10000, serviceId: 32152 },
+            { name: "20k Facebook Indian Mix Followers - Lifetime [Profile/Page]", price: "₹1,360.00", baseQty: 20000, serviceId: 32152 },
+            { name: "50k Facebook Indian Mix Followers - Lifetime [Profile/Page]", price: "₹3,180.00", baseQty: 50000, serviceId: 32152 },
+            { name: "100k Facebook Indian Mix Followers - Lifetime [Profile/Page]", price: "₹6,150.00", baseQty: 100000, serviceId: 32152 },
+            { name: "500k Facebook Indian Mix Followers - Lifetime [Profile/Page]", price: "₹28,999.00", baseQty: 500000, serviceId: 32152 },
+            { name: "1 Million Facebook Indian Mix Followers - Lifetime [Profile/Page]", price: "₹55,499.00", baseQty: 1000000, serviceId: 32152 }
+        ];
+
+        const facebookReelsVideoViewsPackages = [
+            { name: "500 Facebook Reel/Video Views", price: "₹15.50", baseQty: 500, serviceId: 29449 },
+            { name: "1k Facebook Reel/Video Views", price: "₹25.00", baseQty: 1000, serviceId: 29449 },
+            { name: "2k Facebook Reel/Video Views", price: "₹35.50", baseQty: 2000, serviceId: 29449 },
+            { name: "5k Facebook Reel/Video Views", price: "₹65.50", baseQty: 5000, serviceId: 29449 },
+            { name: "10k Facebook Reel/Video Views", price: "₹85.50", baseQty: 10000, serviceId: 29449 },
+            { name: "20k Facebook Reel/Video Views", price: "₹110.00", baseQty: 20000, serviceId: 29449 },
+            { name: "50k Facebook Reel/Video Views", price: "₹265.00", baseQty: 50000, serviceId: 29449 },
+            { name: "100k Facebook Reel/Video Views", price: "₹625.00", baseQty: 100000, serviceId: 29449 },
+            { name: "500k Facebook Reel/Video Views", price: "₹2,250.00", baseQty: 500000, serviceId: 29449 },
+            { name: "1 Million Facebook Reel/Video Views", price: "₹4,350.00", baseQty: 1000000, serviceId: 29449 }
+        ];
+
+        const facebookPostReactionsPackages = [
+            { name: "100 Facebook Post Reaction [Like]", price: "₹15.50", baseQty: 100, serviceId: 27211 },
+            { name: "500 Facebook Post Reaction [Like]", price: "₹35.50", baseQty: 500, serviceId: 27211 },
+            { name: "1k Facebook Post Reaction [Like]", price: "₹85.00", baseQty: 1000, serviceId: 27211 },
+            { name: "2k Facebook Post Reaction [Like]", price: "₹115.50", baseQty: 2000, serviceId: 27211 },
+            { name: "5k Facebook Post Reaction [Like]", price: "₹289.50", baseQty: 5000, serviceId: 27211 },
+            { name: "10k Facebook Post Reaction [Like]", price: "₹600.50", baseQty: 10000, serviceId: 27211 },
+            { name: "20k Facebook Post Reaction [Like]", price: "₹1040.00", baseQty: 20000, serviceId: 27211 },
+            { name: "50k Facebook Post Reaction [Like]", price: "₹2,520.00", baseQty: 50000, serviceId: 27211 },
+            { name: "100k Facebook Post Reaction [Like]", price: "₹4,775.00", baseQty: 100000, serviceId: 27211 },
+            { name: "500k Facebook Post Reaction [Like]", price: "₹22,850.00", baseQty: 500000, serviceId: 27211 }
+        ];
+
+const facebookGroupMembersPackages = [
+            { name: "100 Facebook Group Members", price: "₹35.28", baseQty: 100, serviceId: 29607 },
+            { name: "500 Facebook Group Members", price: "₹156.40", baseQty: 500, serviceId: 29607 },
+            { name: "1k Facebook Group Members", price: "₹282.80", baseQty: 1000, serviceId: 29607 },
+            { name: "2k Facebook Group Members", price: "₹530.33", baseQty: 2000, serviceId: 29607 },
+            { name: "5k Facebook Group Members", price: "₹1,288.18", baseQty: 5000, serviceId: 29607 },
+            { name: "10k Facebook Group Members", price: "₹2,400.52", baseQty: 10000, serviceId: 29607 },
+            { name: "20k Facebook Group Members", price: "₹4,550.49", baseQty: 20000, serviceId: 29607 },
+            { name: "50k Facebook Group Members", price: "₹11,223.41", baseQty: 50000, serviceId: 29607 },
+            { name: "100k Facebook Group Members", price: "₹21,688.41", baseQty: 100000, serviceId: 29607 }
+        ];
+
+        const facebookPostLikesPackages = [
+            { name: "100 Facebook Post Likes", price: "₹15.08", baseQty: 100, serviceId: 27991 },
+            { name: "500 Facebook Post Likes", price: "₹40.40", baseQty: 500, serviceId: 27991 },
+            { name: "1k Facebook Post Likes", price: "₹80.80", baseQty: 1000, serviceId: 27991 },
+            { name: "2k Facebook Post Likes", price: "₹135.52", baseQty: 2000, serviceId: 27991 },
+            { name: "5k Facebook Post Likes", price: "₹355.77", baseQty: 5000, serviceId: 27991 },
+            { name: "10k Facebook Post Likes", price: "₹653.29", baseQty: 10000, serviceId: 27991 },
+            { name: "20k Facebook Post Likes", price: "₹1,194.42", baseQty: 20000, serviceId: 27991 },
+            { name: "50k Facebook Post Likes", price: "₹2,975.25", baseQty: 50000, serviceId: 27991 },
+            { name: "100k Facebook Post Likes", price: "₹5,368.10", baseQty: 100000, serviceId: 27991 }
+        ];
+
+        const telegramMembersPackages = [
+            { name: "100 Members. Real - No Refill", price: "₹25.00", baseQty: 100, serviceId: 31703 },
+            { name: "500 Members Real-No Refill", price: "₹65.00", baseQty: 500, serviceId: 31703 },
+            { name: "1k Members. Real-No Refill", price: "₹99.00", baseQty: 1000, serviceId: 31703 },
+            { name: "2k Members. Real-No Refill", price: "₹183.00", baseQty: 2000, serviceId: 31703 },
+            { name: "5k Members. Real-No Refill", price: "₹399.00", baseQty: 5000, serviceId: 31703 },
+            { name: "10k Members. Real-No Refill", price: "₹799.00", baseQty: 10000, serviceId: 31703 },
+            { name: "20k Members Real-No Refill", price: "₹1,540.00", baseQty: 20000, serviceId: 31703 },
+            { name: "50k Members. Real-No Refill", price: "₹3,720.00", baseQty: 50000, serviceId: 31703 },
+            { name: "100k Members Real - No Refill", price: "₹6,900.00", baseQty: 100000, serviceId: 31703 },
+            { name: "500k Members. Real-No Refill", price: "₹33,600.00", baseQty: 500000, serviceId: 31703 },
+            { name: "1 Million Members Real - No Refill", price: "₹63,500.00", baseQty: 1000000, serviceId: 31703 }
+        ];
+
+        const telegramReactionsPackages = [
+            { name: "100 Reaction Fast", price: "₹15.00", baseQty: 100, serviceId: 15397 },
+            { name: "500 Reaction Fast", price: "₹25.00", baseQty: 500, serviceId: 15397 },
+            { name: "1k Reaction Fast", price: "₹35.00", baseQty: 1000, serviceId: 15397 },
+            { name: "2k Reaction Fast", price: "₹50.00", baseQty: 2000, serviceId: 15397 },
+            { name: "5k Reaction Fast", price: "₹65.00", baseQty: 5000, serviceId: 15397 },
+            { name: "10k Reaction Fast", price: "₹120.00", baseQty: 10000, serviceId: 15397 },
+            { name: "20k Reaction Fast", price: "₹210.00", baseQty: 20000, serviceId: 15397 },
+            { name: "50k Reaction Fast", price: "₹499.00", baseQty: 50000, serviceId: 15397 },
+            { name: "100k Reaction Fast", price: "₹899.00", baseQty: 100000, serviceId: 15397 },
+            { name: "500k Reaction Fast", price: "₹4,300.00", baseQty: 500000, serviceId: 15397 },
+            { name: "1 Million Reaction Fast", price: "₹8,100.00", baseQty: 1000000, serviceId: 15397 }
+        ];
+
+        const telegramViewsPackages = [
+            { name: "1k Post Views [Last 1 Post]", price: "₹18.00", baseQty: 1000, serviceId: 15448 },
+            { name: "2k Post Views [Last 1 Post]", price: "₹25.90", baseQty: 2000, serviceId: 15448 },
+            { name: "5k Post Views [Last 1 Post]", price: "₹35.70", baseQty: 5000, serviceId: 15448 },
+            { name: "10k Post Views [Last 1 Post]", price: "₹45.10", baseQty: 10000, serviceId: 15448 },
+            { name: "20k Post Views [Last 1 Post]", price: "₹65.00", baseQty: 20000, serviceId: 15448 },
+            { name: "50k Post Views [Last 1 Post]", price: "₹79.00", baseQty: 50000, serviceId: 15448 },
+            { name: "100k Post Views [Last 1 Post]", price: "₹99.00", baseQty: 100000, serviceId: 15448 },
+            { name: "500k Post Views [Last 1 Post]", price: "₹499.00", baseQty: 500000, serviceId: 15448 },
+            { name: "1 Million Post Views [Last 1 Post]", price: "₹899.00", baseQty: 1000000, serviceId: 15448 }
+        ];
+
+        const youtubeVideoViewsPackages = [
+            { name: "100 YouTube Shorts / Video Views [Non-Drop] [Lifetime Guaranteed]", price: "₹65.90", baseQty: 100, serviceId: 20202 },
+            { name: "500 YouTube Shorts / Video Views [Non-Drop] [Lifetime Guaranteed]", price: "₹165.50", baseQty: 500, serviceId: 20202 },
+            { name: "1k YouTube Shorts / Video Views [Non-Drop] [Lifetime Guaranteed]", price: "₹259.00", baseQty: 1000, serviceId: 20202 },
+            { name: "2k YouTube Shorts / Video Views [Non-Drop] [Lifetime Guaranteed]", price: "₹440.10", baseQty: 2000, serviceId: 20202 },
+            { name: "5k YouTube Shorts / Video Views [Non-Drop] [Lifetime Guaranteed]", price: "₹941.30", baseQty: 5000, serviceId: 20202 },
+            { name: "10k YouTube Shorts / Video Views [Non-Drop] [Lifetime Guaranteed]", price: "₹1,728.90", baseQty: 10000, serviceId: 20202 },
+            { name: "20k YouTube Shorts / Video Views [Non-Drop] [Lifetime Guaranteed]", price: "₹3,322.00", baseQty: 20000, serviceId: 20202 },
+            { name: "50k YouTube Shorts / Video Views [Non-Drop] [Lifetime Guaranteed]", price: "₹7,976.00", baseQty: 50000, serviceId: 20202 },
+            { name: "100k YouTube Shorts / Video Views [Non-Drop] [Lifetime Guaranteed]", price: "₹15,515.00", baseQty: 100000, serviceId: 20202 },
+            { name: "500k YouTube Shorts / Video Views [Non-Drop] [Lifetime Guaranteed]", price: "₹73,690.00", baseQty: 500000, serviceId: 20202 },
+            { name: "1 Million YouTube Shorts / Video Views [Non-Drop] [Lifetime Guaranteed]", price: "₹142,410.00", baseQty: 1000000, serviceId: 20202 }
+        ];
+
+        const youtubeSubscribersPackages = [
+            { name: "100 YouTube Subscribers [Lifetime] 100% Non Drop", price: "₹299.15", baseQty: 100, serviceId: 27905 },
+            { name: "500 YouTube Subscribers [Lifetime] 100% Non Drop", price: "₹1,375.75", baseQty: 500, serviceId: 27905 },
+            { name: "1k YouTube Subscribers [Lifetime] 100% Non Drop", price: "₹2,651.50", baseQty: 1000, serviceId: 27905 },
+            { name: "2k YouTube Subscribers [Lifetime] 100% Non Drop", price: "₹4,947.85", baseQty: 2000, serviceId: 27905 },
+            { name: "5k YouTube Subscribers [Lifetime] 100% Non Drop", price: "₹12,192.05", baseQty: 5000, serviceId: 27905 },
+            { name: "10k YouTube Subscribers [Lifetime] 100% Non Drop", price: "₹23,518.65", baseQty: 10000, serviceId: 27905 }
+        ];
+
+        const youtubeLikesPackages = [
+            { name: "100 YouTube Likes [Lifetime]", price: "₹139.90", baseQty: 100, serviceId: 31812 },
+            { name: "500 YouTube Likes [Lifetime]", price: "₹299.50", baseQty: 500, serviceId: 31812 },
+            { name: "1k YouTube Likes [Lifetime]", price: "₹599.00", baseQty: 1000, serviceId: 31812 },
+            { name: "2k YouTube Likes [Lifetime]", price: "₹1010.10", baseQty: 2000, serviceId: 31812 },
+            { name: "5k YouTube Likes [Lifetime]", price: "₹2,175.30", baseQty: 5000, serviceId: 31812 },
+            { name: "10k YouTube Likes [Lifetime]", price: "₹3,830.90", baseQty: 10000, serviceId: 31812 },
+            { name: "20k YouTube Likes [Lifetime]", price: "₹7,382.00", baseQty: 20000, serviceId: 31812 },
+            { name: "50k YouTube Likes [Lifetime]", price: "₹17,756.00", baseQty: 50000, serviceId: 31812 },
+            { name: "100k YouTube Likes [Lifetime]", price: "₹34,115.00", baseQty: 100000, serviceId: 31812 }
+        ];
+
+        const youtubeRandomCommentsPackages = [
+            { name: "100 Youtube Random Comments [English] [Max 50K] | High Quality Accounts", price: "₹147.52", baseQty: 100, serviceId: 28760 },
+            { name: "500 Youtube Random Comments [English] [Max 50K] | High Quality Accounts", price: "₹337.58", baseQty: 500, serviceId: 28760 },
+            { name: "1k Youtube Random Comments [English] [Max 50K] | High Quality Accounts", price: "₹675.16", baseQty: 1000, serviceId: 28760 },
+            { name: "2k Youtube Random Comments [English] [Max 50K] | High Quality Accounts", price: "₹1102.80", baseQty: 2000, serviceId: 28760 },
+            { name: "5k Youtube Random Comments [English] [Max 50K] | High Quality Accounts", price: "₹2,433.23", baseQty: 5000, serviceId: 28760 },
+            { name: "10k Youtube Random Comments [English] [Max 50K] | High Quality Accounts", price: "₹4,523.92", baseQty: 10000, serviceId: 28760 },
+            { name: "20k Youtube Random Comments [English] [Max 50K] | High Quality Accounts", price: "₹8,752.81", baseQty: 20000, serviceId: 28760 },
+            { name: "50k Youtube Random Comments [English] [Max 50K] | High Quality Accounts", price: "₹21,106.86", baseQty: 50000, serviceId: 28760 }
+        ];
+
+        const freeFireUidAutoLikePackages = [
+            { name: "🎁 ᴅᴇᴍᴏ ᴛ🇷ɪᴀʟ - (20 ⭐) ᴅᴜʀᴀᴛɪᴏɴ: 1 ᴅᴀʏ ᴅᴇᴍᴏ ᴛᴏᴛᴀʟ ʟɪᴋᴇꜱ: ~220 ᴅᴀɪʟʏ ʟɪᴋᴇꜱ: ~220", price: "₹30.00", baseQty: 220, serviceId: 40001 },
+            { name: "⭐ 7 ᴅᴀʏꜱ ꜱᴛᴀʀᴛᴇʀ - (50 ⭐) ᴅᴜʀᴀᴛɪᴏɴ: 7 ᴅᴀʏꜱ ᴛᴏᴛᴀʟ ʟɪᴋᴇꜱ: 1,540 ᴅᴀɪʟʏ ʟɪᴋᴇꜱ: ~220", price: "₹100.00", baseQty: 1540, serviceId: 40002 },
+            { name: "🚀 15 ᴅᴀʏꜱ ɢʀᴏᴡᴛ🇭 - (100 ⭐) ᴅᴜʀᴀᴛɪᴏɴ: 15 ᴅᴀʏꜱ ᴛᴏᴛᴀʟ ʟɪᴋᴇꜱ: 3,300 ᴅᴀɪʟʏ ʟɪᴋᴇꜱ: ~220", price: "₹150.00", baseQty: 3300, serviceId: 40003 },
+            { name: "💎 30 ᴅᴀʏꜱ ᴘ🇷ᴏ - (200 ⭐) ᴅᴜʀᴀᴛɪᴏɴ: 30 ᴅᴀʏꜱ ᴛᴏᴛᴀʟ ʟɪᴋᴇꜱ: 6,600 ᴅᴀɪʟʏ ʟɪᴋᴇꜱ: ~220", price: "₹250.00", baseQty: 6600, serviceId: 40004 },
+            { name: "👑 60 ᴅᴀʏꜱ ᴘ🇷ᴇᴍɪ🇺🇲 - (400 ⭐) ᴅᴜʀᴀᴛɪᴏɴ: 60 ᴅᴀʏꜱ ᴛᴏᴛᴀʟ ʟɪᴋᴇꜱ: 13,200 ᴅᴀɪʟʏ ʟɪᴋᴇꜱ: ~220", price: "₹450.00", baseQty: 13200, serviceId: 40005 },
+            { name: "🏆 90 ᴅᴀʏꜱ ᴘ🇷🇴+ - (600 ⭐) ᴅᴜ🇷ᴀᴛɪᴏɴ: 90 ᴅᴀʏꜱ ᴛᴏᴛᴀʟ ʟɪᴋᴇꜱ: 19,800 ᴅᴀɪʟʏ ʟɪᴋᴇꜱ: ~220", price: "₹750.00", baseQty: 19800, serviceId: 40006 },
+            { name: "♾️ ᴘ🇷ᴇ🇷ᴍᴀɴᴇɴ🇹 - (2200 ⭐) ᴅᴜ🇷ᴀᴛɪᴏɴ: ʟɪꜰᴇᴛɪᴍ🇪 ᴛᴏᴛᴀʟ ʟɪᴋᴇꜱ: 🇺🇳ʟɪᴍɪ🇹🇪🇩 ᴅᴀɪʟʏ ʟɪᴋᴇꜱ: ~220", price: "₹2500.00", baseQty: 22000, serviceId: 40007 }
+        ];
+
+        const freeFireGuildGloryBotPackages = [
+            { name: "Free Fire Guild Glory Bot  4 bots Total glory 150k", price: "₹300.00", baseQty: 1, serviceId: 70001 },
+            { name: "Free Fire Guild Glory Bot 8 bots Total glory 300k", price: "₹580.00", baseQty: 1, serviceId: 70002 },
+            { name: "Free Fire Guild Glory Bot 12 bots Total glory 450k", price: "₹870.00", baseQty: 1, serviceId: 70003 },
+            { name: "Free Fire Guild Glory Bot 16 bots Total glory 600k", price: "₹1160.00", baseQty: 1, serviceId: 70004 },
+            { name: "Free Fire Guild Glory Bot 20 bots Total glory 750k", price: "₹1440.00", baseQty: 1, serviceId: 70005 },
+            { name: "Free Fire Guild Glory Bot 24 bots Total glory 900k", price: "₹1780.00", baseQty: 1, serviceId: 70006 },
+            { name: "Free Fire Guild Glory Bot 28  bots Total glory 1050 k", price: "₹2070.00", baseQty: 1, serviceId: 70007 },
+            { name: "Free Fire Guild Glory Bot 32 bots Total glory 1200k", price: "₹2370.00", baseQty: 1, serviceId: 70008 },
+            { name: "Free Fire Guild Glory Bot 36 bots Total glory 1350k", price: "₹2680.00", baseQty: 1, serviceId: 70009 },
+            { name: "Free Fire Guild Glory Bot 40 bots Total glory 1500k", price: "₹2960.00", baseQty: 1, serviceId: 70010 },
+            { name: "Free Fire Guild Glory Bot 44 bots Total glory 1650k", price: "₹3270.00", baseQty: 1, serviceId: 70011 },
+            { name: "Free Fire Guild Glory Bot 48  bots Total glory 1800k", price: "₹3560.00", baseQty: 1, serviceId: 70012 },
+            { name: "Free Fire Guild Glory Bot 52  bots Total glory 1950k", price: "₹3870.00", baseQty: 1, serviceId: 70013 }
+        ];
+
+        const freeFireDiamondPackages = [
+            { name: "100 Free Fire Diamonds", price: "₹85.00", baseQty: 100, serviceId: 50001 },
+            { name: "310 Free Fire Diamonds", price: "₹245.00", baseQty: 310, serviceId: 50002 },
+            { name: "520 Free Fire Diamonds", price: "₹400.00", baseQty: 520, serviceId: 50003 },
+            { name: "1060 Free Fire Diamonds", price: "₹800.00", baseQty: 1060, serviceId: 50004 },
+            { name: "2180 Free Fire Diamonds", price: "₹1,600.00", baseQty: 2180, serviceId: 50005 },
+            { name: "5600 Free Fire Diamonds", price: "₹4,000.00", baseQty: 5600, serviceId: 50006 }
+        ];
+
+        const freeFireDimandBigOfferPackages = [
+            { name: "2120 💎 Free Fire Big Offer", price: "₹1350.00", baseQty: 2120, serviceId: 50011 },
+            { name: "4360 💎 Free Fire Big Offer", price: "₹2750.00", baseQty: 4360, serviceId: 50012 },
+            { name: "5300 💎 Free Fire Big Offer", price: "₹3400.00", baseQty: 5300, serviceId: 50013 },
+            { name: "9800 💎 Free Fire Big Offer", price: "₹5750.00", baseQty: 9800, serviceId: 50014 },
+            { name: "11200 💎 Free Fire Big Offer", price: "₹5850.00", baseQty: 11200, serviceId: 50015 },
+            { name: "22400 💎 Free Fire Big Offer", price: "₹12500.00", baseQty: 22400, serviceId: 50016 }
+        ];
+
+        const freeFireMembershipPackages = [
+            { name: "Weekly Membership Free Fire", price: "₹150.00", baseQty: 1, serviceId: 60001 },
+            { name: "Monthly Membership Free Fire", price: "₹780.00", baseQty: 1, serviceId: 60002 }
+        ];
+
+        const freeFireRedeemCodePackages = [
+            { name: "Free Fire Maxx Redeem Code Card (Payment Receive ₹75)", price: "₹72.00", baseQty: 1, serviceId: 80001 },
+            { name: "Free Fire Maxx Redeem Code Card (Payment Receive ₹250)", price: "₹242.00", baseQty: 1, serviceId: 80002 },
+            { name: "Free Fire Maxx Redeem Code Card (Payment Receive ₹800)", price: "₹776.00", baseQty: 1, serviceId: 80003 },
+            { name: "Free Fire Maxx Redeem Code Card (Payment Receive ₹1600)", price: "₹1552.00", baseQty: 1, serviceId: 80004 }
+        ];
+
+        const bgmiRedeemCodePackages = [
+            { name: "Bgmi Redeem Code Card (Payment Receive ₹89)", price: "₹86.00", baseQty: 1, serviceId: 90001 },
+            { name: "Bgmi Redeem Code Card (Payment Receive ₹380)", price: "₹368.00", baseQty: 1, serviceId: 90002 }
+        ];
+
+const subServices = {
+            'VerificationBadges': [
+                "Facebook Meta Verified Badge", "WhatsApp Meta Verified Badge", "Telegram Meta Verified Badge", "Twitter Blue Tick Badge"
+            ],
+            'MobileRecharge': [
+                "Airtel Recharge", "Jio Recharge", "Voda / Vi Recharge"
+            ],
+            'Instagram': [
+                "Instagram Followers", "Instagram Views", "Instagram Likes", 
+                "Story Views", "Instagram comment", "INSTAGRAM Shares", 
+                "Ig Post / photo Views", "Instagram Poll Votes"
+            ],
+            'Facebook': [
+                "Facebook Indian Mix Followers", "Facebook Reels/Video Views", 
+                "Facebook Post Reactions", "Facebook Group Members", "Facebook Post Likes"
+            ],
+            'Telegram': [
+                "Telegram Members", "Telegram Reactions", "Telegram Views"
+            ],
+            'YouTube': [
+                "YouTube Video Views", "YouTube Subscribers", "YouTube Likes", 
+                "YouTube Random Comments"
+            ],
+            'FreeFire': [
+                "Free Fire Uid Auto Like"
+            ],
+            'FreeFireGuildGlory': [
+                "Free Fire Guild Glory Bot"
+            ],
+            'FreeFireDiamond': [
+                "Free Fire Diamond", "free fire dimand big offer 🫴📥"
+            ],
+            'FreeFireMembership': [
+                "Free Fire Membership"
+            ],
+            'FreeFireRedeemCode': [
+                "Free Fire Maxx Redeem Code Card"
+            ],
+            'BgmiRedeemCode': [
+                "Bgmi Redeem Code Card"
+            ]
+        };
+
+        function showSubCategory(categoryName) {
+            let container = document.getElementById('mainContainer');
+            let list = subServices[categoryName];
+            
+            let html = `
+                <div class="section-title">
+                    <button class="back-btn" onclick="goBackHome()">←</button>
+                    ${categoryName === 'VerificationBadges' ? '🔵 Verification Badges' : categoryName === 'MobileRecharge' ? '📱 Mobile Recharge (5G Data)' : categoryName === 'FreeFire' ? 'Free Fire Uid Auto Like' : categoryName === 'FreeFireGuildGlory' ? 'Free Fire Guild Glory Bot' : categoryName === 'FreeFireDiamond' ? '💎 ✨ Free Fire Diamond' : categoryName === 'FreeFireMembership' ? 'Free Fire Membership' : categoryName === 'FreeFireRedeemCode' ? '♠️ Free Fire Maxx Redeem Code Card Sarvice' : categoryName === 'BgmiRedeemCode' ? '♦️ Bgmi Redeem Code Card' : categoryName + ' Services'}
+                </div>
+            `;
+            list.forEach(service => {
+                if(service === "Facebook Meta Verified Badge" || service === "WhatsApp Meta Verified Badge" || service === "Telegram Meta Verified Badge" || service === "Twitter Blue Tick Badge") {
+                    html += `<div class="service-card" onclick="showVerificationBadgesPackages()">🔵 ${service} <span>›</span></div>`;
+                } else if(service === "Airtel Recharge" || service === "Jio Recharge" || service === "Voda / Vi Recharge") {
+                    html += `<div class="service-card" onclick="showMobileRechargePackages()">📱 ${service} <span>›</span></div>`;
+                } else if(service === "Instagram Followers") {
+                    html += `<div class="service-card" onclick="showInstagramFollowersPackages()">📷 Instagram Followers <span>›</span></div>`;
+                } else if(service === "Instagram Views") {
+                    html += `<div class="service-card" onclick="showInstagramViewsPackages()">👁️ Instagram Views <span>›</span></div>`;
+                } else if(service === "Instagram Likes") {
+                    html += `<div class="service-card" onclick="showInstagramLikesPackages()">❤️ Instagram Likes <span>›</span></div>`;
+                } else if(service === "Story Views") {
+                    html += `<div class="service-card" onclick="showInstagramStoryViewsPackages()">👁️ Story Views <span>›</span></div>`;
+                } else if(service === "Instagram comment") {
+                    html += `<div class="service-card" onclick="showInstagramCommentsPackages()">💬 Instagram comment <span>›</span></div>`;
+                } else if(service === "INSTAGRAM Shares") {
+                    html += `<div class="service-card" onclick="showInstagramSharesPackages()">🚀 INSTAGRAM Shares <span>›</span></div>`;
+                } else if(service === "Ig Post / photo Views") {
+                    html += `<div class="service-card" onclick="showInstagramPostViewsPackages()">🖼️ Ig Post / photo Views <span>›</span></div>`;
+                } else if(service === "Instagram Poll Votes") {
+                    html += `<div class="service-card" onclick="showInstagramPollVotesPackages()">📊 Instagram Poll Votes <span>›</span></div>`;
+                } else if(service === "Facebook Indian Mix Followers") {
+                    html += `<div class="service-card" onclick="showFacebookIndianMixFollowersPackages()">👥 Facebook Indian Mix Followers <span>›</span></div>`;
+                } else if(service === "Facebook Reels/Video Views") {
+                    html += `<div class="service-card" onclick="showFacebookReelsVideoViewsPackages()">👁️ Facebook Reels/Video Views <span>›</span></div>`;
+                } else if(service === "Facebook Post Reactions") {
+                    html += `<div class="service-card" onclick="showFacebookPostReactionsPackages()">👍 Facebook Post Reactions <span>›</span></div>`;
+                } else if(service === "Facebook Group Members") {
+                    html += `<div class="service-card" onclick="showFacebookGroupMembersPackages()">👥 Facebook Group Members <span>›</span></div>`;
+                } else if(service === "Facebook Post Likes") {
+                    html += `<div class="service-card" onclick="showFacebookPostLikesPackages()">❤️ Facebook Post Likes <span>›</span></div>`;
+                } else if(service === "Telegram Members") {
+                    html += `<div class="service-card" onclick="showTelegramMembersPackages()">👥 Telegram Members <span>›</span></div>`;
+                } else if(service === "Telegram Reactions") {
+                    html += `<div class="service-card" onclick="showTelegramReactionsPackages()">👎 Telegram Reactions <span>›</span></div>`;
+                } else if(service === "Telegram Views") {
+                    html += `<div class="service-card" onclick="showTelegramViewsPackages()">👁️ Telegram Views <span>›</span></div>`;
+                } else if(service === "YouTube Video Views") {
+                    html += `<div class="service-card" onclick="showYouTubeVideoViewsPackages()">▶️ YouTube Video Views <span>›</span></div>`;
+                } else if(service === "YouTube Subscribers") {
+                    html += `<div class="service-card" onclick="showYouTubeSubscribersPackages()">🔔 YouTube Subscribers <span>›</span></div>`;
+                } else if(service === "YouTube Likes") {
+                    html += `<div class="service-card" onclick="showYouTubeLikesPackages()">👍 YouTube Likes <span>›</span></div>`;
+                } else if(service === "YouTube Random Comments") {
+                    html += `<div class="service-card" onclick="showYouTubeRandomCommentsPackages()">💬 YouTube Random Comments <span>›</span></div>`;
+                } else if(service === "Free Fire Uid Auto Like") {
+                    html += `<div class="service-card" onclick="showFreeFireUidAutoLikePackages()">🎮 Free Fire Uid Auto Like <span>›</span></div>`;
+                } else if(service === "Free Fire Guild Glory Bot") {
+                    html += `<div class="service-card" onclick="showFreeFireGuildGloryBotPackages()">🛡️ Free Fire Guild Glory Bot <span>›</span></div>`;
+                } else if(service === "Free Fire Diamond") {
+                    html += `<div class="service-card" onclick="showFreeFireDiamondPackages()">💎 ✨ Free Fire Diamond <span>›</span></div>`;
+                } else if(service === "free fire dimand big offer 🫴📥") {
+                    html += `<div class="service-card" onclick="showFreeFireDimandBigOfferPackages()">free fire dimand big offer 🫴📥 <span>›</span></div>`;
+                } else if(service === "Free Fire Membership") {
+                    html += `<div class="service-card" onclick="showFreeFireMembershipPackages()">💌 Free Fire Membership <span>›</span></div>`;
+                } else if(service === "Free Fire Maxx Redeem Code Card") {
+                    html += `<div class="service-card" onclick="showFreeFireRedeemCodePackages()">♠️ Free Fire Maxx Redeem Code Card <span>›</span></div>`;
+                } else if(service === "Bgmi Redeem Code Card") {
+                    html += `<div class="service-card" onclick="showBgmiRedeemCodePackages()">♦️ Bgmi Redeem Code Card <span>›</span></div>`;
+                } else {
+                    html += `<div class="service-card" onclick="openOrderModal('${service}', 0, 1, 0, 'Enter link')">${service} <span>›</span></div>`;
+                }
+            });
+            container.innerHTML = html;
+        }
+
+        function showVerificationBadgesPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="goBackHome()">←</button>Verification Badges Packages</div>`;
+            verificationBadgesPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'Enter Your Profile link')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showMobileRechargePackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="goBackHome()">←</button>Mobile Recharge Packages</div>`;
+            mobileRechargePackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'Enter Your valid phone number')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showInstagramFollowersPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('Instagram')">←</button>Instagram Followers Packages</div>`;
+            instagramFollowersPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'enter your Instagram profile link')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showInstagramViewsPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('Instagram')">←</button>Instagram Views Packages</div>`;
+            instagramViewsPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'enter your video link')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showInstagramLikesPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('Instagram')">←</button>Instagram Likes Packages</div>`;
+            instagramLikesPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'enter your video link')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showInstagramStoryViewsPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('Instagram')">←</button>Instagram Story Views Packages</div>`;
+            instagramStoryViewsPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'enter your story link')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showInstagramCommentsPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('Instagram')">←</button>Instagram Comments Packages</div>`;
+            instagramCommentsPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'enter your video link')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showInstagramSharesPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('Instagram')">←</button>Instagram Shares Packages</div>`;
+            instagramSharesPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'enter your video link')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+function showInstagramPostViewsPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('Instagram')">←</button>Instagram Post / Photo Views Packages</div>`;
+            instagramPostViewsPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'enter your video photo link')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showInstagramPollVotesPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('Instagram')">←</button>Instagram Poll Votes Packages</div>`;
+            instagramPollVotesPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'enter your poll link')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showFacebookIndianMixFollowersPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('Facebook')">←</button>Facebook Indian Mix Followers</div>`;
+            facebookIndianMixFollowersPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'enter your facebook profile link')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showFacebookReelsVideoViewsPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('Facebook')">←</button>Facebook Reels/Video Views</div>`;
+            facebookReelsVideoViewsPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'enter your reels/ video link')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showFacebookPostReactionsPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('Facebook')">←</button>Facebook Post Reactions</div>`;
+            facebookPostReactionsPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'enter your post link')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showFacebookGroupMembersPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('Facebook')">←</button>Facebook Group Members</div>`;
+            facebookGroupMembersPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'enter your group link')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showFacebookPostLikesPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('Facebook')">←</button>Facebook Post Likes</div>`;
+            facebookPostLikesPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'enter your video link')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showTelegramMembersPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('Telegram')">←</button>Telegram Members Packages</div>`;
+            telegramMembersPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'enter your group/channel link')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showTelegramReactionsPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('Telegram')">←</button>Telegram Reactions Packages</div>`;
+            telegramReactionsPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'enter your video/post link')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showTelegramViewsPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('Telegram')">←</button>Telegram Post Views Packages</div>`;
+            telegramViewsPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'enter your video/ photo link')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showYouTubeVideoViewsPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('YouTube')">←</button>YouTube Video Views Packages</div>`;
+            youtubeVideoViewsPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'enter your video link')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showYouTubeSubscribersPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('YouTube')">←</button>YouTube Subscribers Packages</div>`;
+            youtubeSubscribersPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'entar your YouTube channel link')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showYouTubeLikesPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('YouTube')">←</button>YouTube Likes Packages</div>`;
+            youtubeLikesPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'enter your video link')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showYouTubeRandomCommentsPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('YouTube')">←</button>YouTube Random Comments Packages</div>`;
+            youtubeRandomCommentsPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'entar your video link')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+function showFreeFireUidAutoLikePackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('FreeFire')">←</button>Free Fire Uid Auto Like Packages</div>`;
+            freeFireUidAutoLikePackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'enter your game uid')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showFreeFireGuildGloryBotPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('FreeFireGuildGlory')">←</button>Free Fire Guild Glory Bot Packages</div>`;
+            freeFireGuildGloryBotPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'entar your guild uid')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showFreeFireDiamondPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('FreeFireDiamond')">←</button>Free Fire Diamond Packages</div>`;
+            freeFireDiamondPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'entar your game uid')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showFreeFireDimandBigOfferPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('FreeFireDiamond')">←</button>💎 ✨ Free Fire Diamond - Big Order Big Offer</div>`;
+            freeFireDimandBigOfferPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'entar your game uid')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showFreeFireMembershipPackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('FreeFireMembership')">←</button>Free Fire Membership Packages</div>`;
+            freeFireMembershipPackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'entar your game uid')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showFreeFireRedeemCodePackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('FreeFireRedeemCode')">←</button>♠️ Free Fire Maxx Redeem Code Card</div>`;
+            freeFireRedeemCodePackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'entar your Gmail')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function showBgmiRedeemCodePackages() {
+            let container = document.getElementById('mainContainer');
+            let html = `<div class="section-title"><button class="back-btn" onclick="showSubCategory('BgmiRedeemCode')">←</button>♦️ Bgmi Redeem Code Card</div>`;
+            bgmiRedeemCodePackages.forEach(pkg => {
+                let numericPrice = parseFloat(pkg.price.replace('₹', '').replace(',', ''));
+                html += `<div class="package-card" onclick="openOrderModal('${pkg.name}', ${numericPrice}, ${pkg.baseQty}, ${pkg.serviceId}, 'vhi entar your Gmail')"><div class="pkg-info"><div class="pkg-name">${pkg.name}</div></div><div class="pkg-price">${pkg.price}</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function goBackHome() {
+            let container = document.getElementById('mainContainer');
+            container.innerHTML = `
+                <div class="section-title" style="justify-content: center;">Our Services</div>
+                <div class="service-card" onclick="showSubCategory('VerificationBadges')">🔵 Verification Badges <span>›</span></div>
+                <div class="service-card" onclick="showSubCategory('MobileRecharge')">📱 Mobile Recharge (5G Data) <span>›</span></div>
+                <div class="service-card" onclick="showSubCategory('Instagram')">📷 INSTAGRAM <span>›</span></div>
+                <div class="service-card" onclick="showSubCategory('Facebook')">📘 FACEBOOK <span>›</span></div>
+                <div class="service-card" onclick="showSubCategory('Telegram')">✈️ Telegram <span>›</span></div>
+                <div class="service-card" onclick="showSubCategory('YouTube')">▶️ YouTube <span>›</span></div>
+                <div class="service-card" onclick="showSubCategory('FreeFire')">🎮 Free Fire Uid Auto Like <span>›</span></div>
+                <div class="service-card" onclick="showSubCategory('FreeFireGuildGlory')">🛡️ Free Fire Guild Glory Bot <span>›</span></div>
+                <div class="service-card" onclick="showSubCategory('FreeFireDiamond')">💎 ✨ Free Fire Diamond <span>›</span></div>
+                <div class="service-card" onclick="showSubCategory('FreeFireMembership')">💌 Free Fire Membership <span>›</span></div>
+                <div class="service-card" onclick="showSubCategory('FreeFireRedeemCode')">♠️ Free Fire Maxx Redeem Code Card <span>›</span></div>
+                <div class="service-card" onclick="showBgmiRedeemCodePackages()">♦️ Bgmi Redeem Code Card <span>›</span></div>
+            `;
+        }
+
+        function resetWalletModal() {
+            document.getElementById('walletStep1').style.display = 'block';
+            document.getElementById('walletStep2').style.display = 'none';
+            document.getElementById('addAmount').value = '';
+            document.getElementById('utrId').value = '';
+            document.getElementById('paymentProofFile').value = '';
+        }
+
+        function generateDynamicQR() {
+            let amount = document.getElementById('addAmount').value;
+            if(!amount || amount <= 0) {
+                alert('Please enter a valid amount!');
+                return;
+            }
+            let upiString = `upi://pay?pa=${ownerUpiId}&pn=${encodeURIComponent(ownerName)}&am=${amount}&cu=INR`;
+            let qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiString)}`;
+
+            document.getElementById('dynamicQRImg').src = qrApiUrl;
+            document.getElementById('qrAmountText').innerText = `(₹${amount})`;
+
+            document.getElementById('walletStep1').style.display = 'none';
+            document.getElementById('walletStep2').style.display = 'block';
+        }
+
+        let selectedPackageBasePrice = 0;
+        let selectedPackageBaseQty = 1;
+        let selectedServiceId = 0;
+
+        function openOrderModal(serviceName, unitPrice, baseQty, serviceId, placeholderText) {
+            selectedPackageBasePrice = unitPrice;
+            selectedPackageBaseQty = baseQty || 1;
+            selectedServiceId = serviceId || 0;
+            
+document.getElementById('orderModal').style.display = 'flex';
+            document.getElementById('orderService').value = serviceName;
+            document.getElementById('orderServiceId').value = selectedServiceId;
+            document.getElementById('orderTitle').innerText = serviceName;
+            document.getElementById('orderQty').value = selectedPackageBaseQty;
+            document.getElementById('targetLink').value = '';
+            document.getElementById('targetLink').placeholder = placeholderText || 'Enter link/UID/Email';
+            
+            calculatePrice();
+        }
+
+        function calculatePrice() {
+            let qty = document.getElementById('orderQty').value;
+            let finalPrice = selectedPackageBasePrice;
+            if (selectedPackageBaseQty > 1 && qty > 0) {
+                let unitRate = selectedPackageBasePrice / selectedPackageBaseQty;
+                finalPrice = unitRate * qty;
+            }
+            document.getElementById('calculatedPriceDisplay').innerText = `Total Price: ₹${finalPrice.toFixed(2)}`;
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+        }
+
+        function openWalletModal() {
+            resetWalletModal();
+            document.getElementById('walletModal').style.display = 'flex';
+        }
+
+        function openMyOrdersModal() {
+            document.getElementById('myOrdersModal').style.display = 'flex';
+            loadMyOrders();
+        }
+
+        function openPrivacyModal() {
+            document.getElementById('privacyModal').style.display = 'flex';
+        }
+
+        function openSettingsModal() {
+            document.getElementById('settingsModal').style.display = 'flex';
+        }
+
+        async function submitOrder() {
+            let serviceName = document.getElementById('orderService').value;
+            let targetLink = document.getElementById('targetLink').value.trim();
+            let qty = document.getElementById('orderQty').value;
+
+            if (!targetLink) {
+                alert('Please enter required link/UID/Details!');
+                return;
+            }
+
+            let finalPrice = selectedPackageBasePrice;
+            if (selectedPackageBaseQty > 1 && qty > 0) {
+                let unitRate = selectedPackageBasePrice / selectedPackageBaseQty;
+                finalPrice = unitRate * qty;
+            }
+
+            if (currentBalance < finalPrice) {
+                alert('Insufficient wallet balance! Please add funds to your wallet.');
+                return;
+            }
+
+            let uid = localStorage.getItem('dksocialboost_logged_in_user');
+            if (!uid) {
+                alert('User not logged in properly.');
+                return;
+            }
+
+            try {
+                // Deduct balance locally & update Firestore user document
+                currentBalance -= finalPrice;
+                updateBalanceDisplay();
+
+                await db.collection("users").doc(uid).update({
+                    balance: currentBalance
+                });
+
+                // Save order details to Firestore so it shows up as pending
+                let orderData = {
+                    userId: uid,
+                    username: loggedInUsername || "User",
+                    email: loggedInEmail || (auth.currentUser ? auth.currentUser.email : "N/A"),
+                    serviceName: serviceName,
+                    targetLink: targetLink,
+                    quantity: qty,
+                    totalPrice: finalPrice,
+                    status: "Pending",
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                await db.collection("orders").add(orderData);
+
+                let uName = loggedInUsername || "User";
+                let uEmail = loggedInEmail || (auth.currentUser ? auth.currentUser.email : "N/A");
+
+                // WhatsApp Redirect Logic
+                let waMessage = `*New Order Placed - Dk Social Boost*%0a` +
+                                `----------------------------------%0a` +
+                                `👤 *Username:* ${uName}%0a` +
+                                `📧 *Gmail:* ${uEmail}%0a` +
+                                `🛠️ *Service Details:* ${serviceName}%0a` +
+                                `🔗 *Link/UID:* ${targetLink}%0a` +
+                                `📦 *Quantity:* ${qty}%0a` +
+                                `💰 *Total Price:* ₹${finalPrice.toFixed(2)}%0a` +
+                                `----------------------------------`;
+
+let waUrl = `https://wa.me/${ownerWhatsAppNumber}?text=${waMessage}`;
+                window.open(waUrl, '_blank');
+                closeModals();
+                alert('Order placed successfully and amount deducted from wallet!');
+            } catch (err) {
+                alert('Error placing order: ' + err.message);
+                // Revert balance if failed
+                currentBalance += finalPrice;
+                updateBalanceDisplay();
+            }
+        }
+
+        async function loadMyOrders() {
+            let uid = localStorage.getItem('dksocialboost_logged_in_user');
+            let ordersListContainer = document.getElementById('myOrdersList');
+            ordersListContainer.innerHTML = 'Loading orders...';
+
+            if (!uid) {
+                ordersListContainer.innerHTML = 'Please login to view orders.';
+                return;
+            }
+
+            try {
+                let snapshot = await db.collection("orders").where("userId", "==", uid).get();
+                if (snapshot.empty) {
+                    ordersListContainer.innerHTML = 'No orders found.';
+                    return;
+                }
+
+                let html = '';
+                snapshot.forEach(doc => {
+                    let data = doc.data();
+                    let statusColor = data.status === 'Completed' ? '#00b894' : '#ff9800';
+                    html += `
+                        <div class="order-item-card">
+                            <b>Service:</b> ${data.serviceName}<br>
+                            <b>Target/Link:</b> ${data.targetLink}<br>
+                            <b>Qty:</b> ${data.quantity} | <b>Price:</b> ₹${data.totalPrice ? data.totalPrice.toFixed(2) : '0.00'}<br>
+                            <b>Status:</b> <span style="color: ${statusColor}; font-weight: bold;">${data.status || 'Pending'}</span>
+                        </div>
+                    `;
+                });
+                ordersListContainer.innerHTML = html;
+            } catch (err) {
+                ordersListContainer.innerHTML = 'Error loading orders: ' + err.message;
+            }
+        }
+
+        async function submitPaymentProof() {
+            let amount = document.getElementById('addAmount').value;
+            let utr = document.getElementById('utrId').value.trim();
+
+            if (!utr) {
+                alert('Please enter UPI Transaction ID / UTR!');
+                return;
+            }
+
+            let uName = loggedInUsername || "User";
+            let uEmail = loggedInEmail || (auth.currentUser ? auth.currentUser.email : "N/A");
+
+            let waMessage = `*New Payment Request - Dk Social Boost*%0a` +
+                            `----------------------------------%0a` +
+                            `👤 *Username:* ${uName}%0a` +
+                            `📧 *Gmail:* ${uEmail}%0a` +
+                            `💵 *Amount:* ₹${amount}%0a` +
+                            `🔢 *UTR/Transaction ID:* ${utr}%0a` +
+                            `----------------------------------`;
+
+            let waUrl = `https://wa.me/${ownerWhatsAppNumber}?text=${waMessage}`;
+            window.open(waUrl, '_blank');
+            closeModals();
+            resetWalletModal();
+        }
+
+        async function confirmUserDataDeletion() {
+            if (confirm("Are you sure you want to delete your account data permanently?")) {
+                let uid = localStorage.getItem('dksocialboost_logged_in_user');
+                if (uid) {
+                    try {
+                        await db.collection("users").doc(uid).delete();
+                        alert('Account data deleted successfully.');
+                        logoutUser();
+                    } catch (err) {
+                        alert('Error deleting data: ' + err.message);
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
